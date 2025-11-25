@@ -4,45 +4,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Coursera Translate Extension</title>
+    <title>Traductor de Subtítulos Coursera</title>
     <link href="popup.css" rel="stylesheet">
 </head>
 
 <body>
     <div class="container">
-        <!-- Header -->
+        <!-- Encabezado -->
         <div class="header">
             <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                     d="M3 5h12M9 3v2m1.048 9.5A18.022 18.022 0 016.412 9m6.088 9h7M11 21l5-10 5 10M12.751 5C11.783 10.77 8.07 15.61 3 18.129">
                 </path>
             </svg>
-            <h1>Coursera Translator</h1>
+            <h1>Traductor Coursera</h1>
         </div>
 
-        <!-- Language Selector -->
+        <!-- Selector de Idioma -->
         <div class="form-group">
-            <label for="lang">Select Language</label>
+            <label for="lang">Seleccionar Idioma</label>
             <select id="lang" class="select">
-                <option value="vi">Vietnamese</option>
-                <option value="zh">Chinese</option>
-                <option value="ko">Korean</option>
-                <option value="ja">Japanese</option>
+                <option value="">Cargando idiomas disponibles...</option>
             </select>
         </div>
 
-        <!-- Translate Button -->
+        <!-- Botón de Traducir -->
         <button id="translateBtn" class="button-primary">
-            Translate Subtitles
+            Traducir Subtítulos
         </button>
 
-        <!-- Divider -->
-        <div class="divider">
-            <span>Connect</span>
+        <!-- Mostrar/Ocultar Subtítulos -->
+        <div class="form-group" style="display: flex; align-items: center; justify-content: space-between;">
+            <label style="margin: 0;">Mostrar Subtítulos</label>
+            <label class="switch">
+                <input type="checkbox" id="show-subtitles-toggle" checked>
+                <span class="slider"></span>
+            </label>
         </div>
 
+        <!-- Sección de Controles TTS -->
+        <div class="tts-section" id="tts-section">
+            <div class="tts-header">
+                <label class="tts-title">
+                    <span style="font-size: 18px;">🔊</span>
+                    <strong>Texto a Voz</strong>
+                </label>
+                <button id="tts-toggle" class="tts-toggle-btn off">OFF</button>
+            </div>
+
+            <!-- Controles que se ocultan cuando TTS está OFF -->
+            <div class="tts-controls hidden" id="tts-controls">
+                <div class="form-control">
+                    <label>Voz:</label>
+                    <select id="tts-voice-select" class="select">
+                        <option value="">Cargando voces...</option>
+                    </select>
+                </div>
+
+                <div class="form-control">
+                    <label>Velocidad: <span id="tts-rate-value">1.0x</span></label>
+                    <div class="speed-buttons">
+                        <button class="speed-btn" data-rate="0.75">0.75x</button>
+                        <button class="speed-btn active" data-rate="1.0">1.0x</button>
+                        <button class="speed-btn" data-rate="1.25">1.25x</button>
+                        <button class="speed-btn" data-rate="1.5">1.5x</button>
+                        <button class="speed-btn" data-rate="1.75">1.75x</button>
+                        <button class="speed-btn" data-rate="2.0">2.0x</button>
+                    </div>
+                </div>
+
+                <div class="form-control">
+                    <label>Volumen: <span id="tts-volume-value">100%</span></label>
+                    <input type="range" id="tts-volume-slider" min="0" max="100" value="100" class="volume-slider">
+                </div>
+            </div>
+        </div>
+
+        <!-- Sección de Personalización de Subtítulos -->
+        <div class="subtitle-customization">
+            <details>
+                <summary>⚙️ Personalización de Subtítulos</summary>
+                <div class="customization-content">
+                    <div class="form-control">
+                        <label>Tamaño de Fuente: <span id="font-size-value">22px</span></label>
+                        <input type="range" id="font-size-slider" min="12" max="40" value="22" class="volume-slider">
+                    </div>
+
+                    <div class="form-control">
+                        <label>Color de Fondo:</label>
+                        <div class="color-picker-group">
+                            <input type="color" id="bg-color-picker" value="#000000">
+                            <span id="bg-color-value" class="color-value">#000000</span>
+                        </div>
+                    </div>
+
+                    <div class="form-control">
+                        <label>Color de Texto:</label>
+                        <div class="color-picker-group">
+                            <input type="color" id="text-color-picker" value="#FFFFFF">
+                            <span id="text-color-value" class="color-value">#FFFFFF</span>
+                        </div>
+                    </div>
+
+                    <div class="form-control">
+                        <label>Opacidad del Fondo: <span id="bg-opacity-value">70%</span></label>
+                        <input type="range" id="bg-opacity-slider" min="0" max="100" value="70" class="volume-slider">
+                    </div>
+
+                    <button id="reset-subtitle-style" class="button-secondary" style="margin-top: 8px;">
+                        🔄 Restaurar Valores
+                    </button>
+                </div>
+            </details>
+        </div>
+
+        <!-- Sección de Subtítulos Disponibles -->
+        <div class="form-group" style="margin-top: 20px;">
+            <label>Subtítulos Disponibles</label>
+            <div id="subtitlesList" class="subtitles-list">
+                <div class="loading-message">Abre un video para ver los subtítulos disponibles...</div>
+            </div>
+        </div>
+
+        <!-- Divider -->
+        <!-- <div class="divider">
+            <span>Connect</span>
+        </div>
+ -->
         <!-- Social Links -->
-        <div class="social-links">
+        <!-- <div class="social-links">
             <a href="https://github.com/bombap/coursera-translator" target="_blank" rel="noopener noreferrer"
                 class="button-secondary">
                 <svg class="icon" viewBox="0 0 24 24" fill="currentColor">
@@ -51,7 +141,7 @@
                 </svg>
                 GitHub
             </a>
-        </div>
+        </div> -->
     </div>
     <script src="popup.js"></script>
 </body>
