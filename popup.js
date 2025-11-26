@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   }
 
   // Función para poblar el selector de idiomas
-  function populateLanguageSelector(availableSubtitles) {
+  async function populateLanguageSelector(availableSubtitles) {
     const langSelect = document.getElementById('lang');
     langSelect.innerHTML = '';
 
@@ -180,6 +180,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         langSelect.appendChild(option);
       }
     });
+
+    // Restaurar idioma guardado previamente
+    const result = await chrome.storage.sync.get(['lang']);
+    if (result.lang) {
+      // Verificar que el idioma guardado existe en las opciones
+      const optionExists = Array.from(langSelect.options).some(opt => opt.value === result.lang);
+      if (optionExists) {
+        langSelect.value = result.lang;
+      }
+    }
   }
 
   // ============ TOGGLE MOSTRAR/OCULTAR SUBTÍTULOS ============
